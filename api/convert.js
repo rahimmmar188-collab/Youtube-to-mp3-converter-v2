@@ -12,11 +12,15 @@ const getYtDlpPath = () => {
         if (require('fs').existsSync(winPath)) return winPath;
     }
 
-    // 2. Try the official package recommendation
+    // 2. Try to resolve via package path
     try {
-        const ytdl = require('youtube-dl-exec');
-        if (ytdl.path) return ytdl.path;
-    } catch (e) { }
+        const pkgPath = require.resolve('youtube-dl-exec/package.json');
+        const pkgDir = path.dirname(pkgPath);
+        const binPath = path.join(pkgDir, 'bin', 'yt-dlp');
+        if (require('fs').existsSync(binPath)) return binPath;
+    } catch (e) {
+        console.warn('[YT-DLP] require.resolve failed');
+    }
 
     // 3. Fallback to manual Linux paths (Vercel)
     const possiblePaths = [
@@ -33,7 +37,7 @@ const getYtDlpPath = () => {
 };
 
 const ytDlpPath = getYtDlpPath();
-console.log('[DEBUG] Path resolved to:', ytDlpPath);
+console.log('[DEBUG] Final Path:', ytDlpPath);
 
 const getInfo = (url) => {
     return new Promise((resolve, reject) => {

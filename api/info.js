@@ -7,8 +7,10 @@ const getYtDlpPath = () => {
         if (require('fs').existsSync(winPath)) return winPath;
     }
     try {
-        const ytdl = require('youtube-dl-exec');
-        if (ytdl.path) return ytdl.path;
+        const pkgPath = require.resolve('youtube-dl-exec/package.json');
+        const pkgDir = path.dirname(pkgPath);
+        const binPath = path.join(pkgDir, 'bin', 'yt-dlp');
+        if (require('fs').existsSync(binPath)) return binPath;
     } catch (e) { }
     const possiblePaths = [
         path.join(process.cwd(), 'node_modules', 'youtube-dl-exec', 'bin', 'yt-dlp'),
@@ -22,7 +24,7 @@ const getYtDlpPath = () => {
 };
 
 const ytDlpPath = getYtDlpPath();
-console.log('[DEBUG] Path resolved to:', ytDlpPath);
+console.log('[DEBUG] Final Path:', ytDlpPath);
 
 const getInfo = (url) => {
     return new Promise((resolve, reject) => {
